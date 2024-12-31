@@ -119,6 +119,14 @@ export default function ThreeDemo() {
         plane.rotation.y = config.movement.startYRotation;
         scene.add(plane);
 
+        // SECOND PLANE
+        const plane2 = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane2.position.x = config.movement.startX + 3;
+        plane2.position.z = config.movement.startZ - 3;
+        plane2.position.y = config.movement.startY + 3;
+        plane2.rotation.y = config.movement.startYRotation;
+        scene.add(plane2);
+
         // POST PROCESSING
         const composer = new EffectComposer(renderer);
 
@@ -142,6 +150,24 @@ export default function ThreeDemo() {
                 const planeWidth = planeHeight * imageAspect;
                 plane.geometry.dispose();
                 plane.geometry = new THREE.PlaneGeometry(
+                    planeWidth,
+                    planeHeight
+                );
+
+                planeMaterial.map = texture;
+                planeMaterial.needsUpdate = true;
+            }
+        );
+        textureLoader.load(
+            "https://raw.githubusercontent.com/braiann/portfolio/refs/heads/main/resources/images/project-screenshots/digitalexecutive.webp",
+            (texture) => {
+                const imageAspect = texture.image.width / texture.image.height;
+
+                const planeHeight = 3;
+                const planeWidth = planeHeight * imageAspect;
+
+                plane2.geometry.dispose();
+                plane2.geometry = new THREE.PlaneGeometry(
                     planeWidth,
                     planeHeight
                 );
@@ -193,16 +219,16 @@ export default function ThreeDemo() {
         function animate() {
             requestAnimationFrame(animate);
 
-            const newXPosition = plane.position.x - state.velocity;
-            plane.position.x = newXPosition;
+            const newXPosition = camera.position.x + state.velocity;
+            camera.position.x = newXPosition;
 
             const newZPosition = THREE.MathUtils.lerp(
-                config.movement.startZ,
-                config.movement.endZ,
+                5,
+                10,
                 (newXPosition - config.movement.startX) /
                     (config.movement.endX - config.movement.startX)
             );
-            plane.position.z = newZPosition;
+            camera.position.z = newZPosition;
 
             const newYPosition = THREE.MathUtils.lerp(
                 config.movement.startY,
@@ -210,7 +236,7 @@ export default function ThreeDemo() {
                 (newXPosition - config.movement.startX) /
                     (config.movement.endX - config.movement.startX)
             );
-            plane.position.y = newYPosition;
+            camera.position.y = newYPosition;
 
             const newYRotation = THREE.MathUtils.lerp(
                 config.movement.startYRotation,
@@ -218,12 +244,12 @@ export default function ThreeDemo() {
                 (newXPosition - config.movement.startX) /
                     (config.movement.endX - config.movement.startX)
             );
-            plane.rotation.y = newYRotation;
+            // camera.rotation.y = newYRotation;
 
             const distanceFromCenter = Math.abs(newXPosition);
             const maxDistance = 5;
             const opacity = 1 - distanceFromCenter / maxDistance;
-            plane.material.opacity = Math.max(0, Math.min(1, opacity));
+            // plane.material.opacity = Math.max(0, Math.min(1, opacity));
 
             state.velocity *= config.movement.friction;
 
